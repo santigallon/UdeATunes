@@ -18,16 +18,17 @@ private:
     string nombre;
     string paisOrigen;
     MiLista<Album> albumes;
+
 public:
-    Artista(int _id, int _edad, string _nombre, string _pais):
-        id (_id) , edad(_edad), seguidores(0), posicionTendencia(0), nombre(_nombre), paisOrigen(_pais){}
+    Artista(int _id, int _edad, string _nombre, string _pais)
+        : id(_id), edad(_edad), seguidores(0), posicionTendencia(0), nombre(_nombre), paisOrigen(_pais) {}
 
-    void agregarAlbum(Album* a)
-    {
-        albumes.agregar(a);
-    }
+    int getSeguidores();
+    string getNombre();
+    void agregarSeguidor();
+    void agregarAlbum(Album* a);
+    void mostrarInfo();
 
-    string getNombre(){return nombre;}
 };
 
 #endif // ARTISTA_H

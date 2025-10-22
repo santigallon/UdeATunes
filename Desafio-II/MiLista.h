@@ -13,7 +13,7 @@ private:
     {
         capacidad *=2;
         T** nuevo = new T*[capacidad];
-        for(int i = 1; i < cantidad; i++)
+        for(int i = 0; i < cantidad; i++)
         {
             nuevo[i]= elementos [i];
         }
@@ -36,14 +36,17 @@ public:
 
     T* obtener (int i)
     {
-        if (i >= 0&& i <cantidad)
+        if (i >= 0 && i <cantidad)
             return elementos[i];
         return nullptr;
     }
 
     int getCantidad(){ return cantidad;}
 
-    ~MiLista(){delete[] elementos; }
+    ~MiLista()
+    {
+        delete[] elementos;
+    }
 };
 
 #endif // MILISTA_H

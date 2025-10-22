@@ -22,13 +22,10 @@ public:
     Album(int _id, string _nombre, string _fecha, string _sello, string _portada)
         :   id(_id), duracionTotal(0.0), nombre(_nombre), fechaLanzamiento(_fecha), selloDisquero(_sello), portadaRuta(_portada){}
 
-    void agregarCancion(Cancion* c)
-    {
-        canciones.agregar(c);
-        duracionTotal += c->getDuracion();
-    }
-
-    string getNombre() {return nombre; }
+    float getDuracion();
+    string getNombre();
+    void agregarCancion(Cancion* c);
+    void mostrarCanciones();
 
 };
 
