@@ -1,5 +1,7 @@
 #include "album.h"
+
 #include <iostream>
+
 using namespace std;
 
 float Album::getDuracion()

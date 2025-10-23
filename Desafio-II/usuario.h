@@ -25,7 +25,7 @@ public:
     bool getVIP();
     string getNickname();
     void reproducir(Cancion* c);
-    void propagandas();         // anuncios* anun  → se agregará más adelante
+    void propagandas();
     void pasarCancion();
     void regresarCancion();
     void pausarCancion();

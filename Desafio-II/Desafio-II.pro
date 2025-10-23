@@ -12,6 +12,7 @@ SOURCES += \
         cancion.cpp \
         creditos.cpp \
         main.cpp \
+        publicidad.cpp \
         udeatunes.cpp \
         usuario.cpp
 
@@ -26,5 +27,6 @@ HEADERS += \
     artista.h \
     cancion.h \
     creditos.h \
+    publicidad.h \
     udeatunes.h \
     usuario.h

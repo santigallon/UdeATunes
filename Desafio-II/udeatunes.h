@@ -19,21 +19,9 @@ private:
 public:
     UdeATunes() {}
 
-    void agregarUsuario(Usuario* u) {
-        usuarios.agregar(u);
-    }
-
-    void agregarArtista(Artista* a) {
-        artistas.agregar(a);
-    }
-
-    void mostrarUsuarios() {
-        for (int i = 0; i < usuarios.getCantidad(); i++) {
-            cout << "Usuario: " << usuarios.obtener(i)->getNickname() << endl;
-        }
-    }
-
-    // Métodos aún no implementados (solo declarados)
+    void agregarUsuario(Usuario* u);
+    void agregarArtista(Artista* a);
+    void mostrarUsuarios();
     void memoriaUsada();
     void iniciarSesion();
 };

@@ -1,8 +1,23 @@
 #include "udeatunes.h"
+
 #include <iostream>
+
 using namespace std;
 
-// Calcular la memoria usada (estimación)
+void UdeATunes::agregarUsuario(Usuario* u) {
+    usuarios.agregar(u);
+}
+
+void UdeATunes::agregarArtista(Artista* a) {
+    artistas.agregar(a);
+}
+
+void UdeATunes::mostrarUsuarios() {
+    for (int i = 0; i < usuarios.getCantidad(); i++) {
+        cout << "Usuario: " << usuarios.obtener(i)->getNickname() << endl;
+    }
+}
+
 void UdeATunes::memoriaUsada() {
     int memoria = 0;
     memoria += usuarios.getCantidad() * sizeof(Usuario);
@@ -10,7 +25,7 @@ void UdeATunes::memoriaUsada() {
     cout << "Memoria estimada usada por el sistema: " << memoria << " bytes." << endl;
 }
 
-// Simular inicio de sesión
+
 void UdeATunes::iniciarSesion() {
     string nombre;
     cout << "Ingrese su nombre de usuario: ";

@@ -17,10 +17,8 @@ private:
 public:
     Creditos(    string nom, string ape, string tip, string cod)
         :nombre(nom), apellido(ape), tipo(tip), codigoAfiliacion(cod) {}
-    string getNombreCompleto()
-    {
-        return nombre + " " + apellido;
-    }
+
+    string getNombreCompleto();
 };
 
 #endif // CREDITOS_H

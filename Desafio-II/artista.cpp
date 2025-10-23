@@ -1,5 +1,7 @@
 #include "artista.h"
+
 #include <iostream>
+
 using namespace std;
 
 void Artista::agregarAlbum(Album* a)

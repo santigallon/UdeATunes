@@ -1,6 +1,7 @@
 #include "usuario.h"
 
 #include <iostream>
+
 using namespace std;
 
 bool Usuario::getVIP()
