@@ -32,6 +32,7 @@ public:
     void agregarCreditos(Creditos* c);
     void reproducir(bool altaCalidad);
     void contarReproducciones();
+    MiLista<Creditos>& getCreditos(){return creditos; }
 };
 
 #endif // CANCION_H

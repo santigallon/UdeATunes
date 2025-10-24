@@ -1,10 +1,14 @@
 #include "udeatunes.h"
+#include "usuario.h"
+#include "album.h"
 
 #include <iostream>
 #include <thread>
 #include <chrono>
 #include <cstdlib>
 #include <fstream>
+#include <sstream>
+#include <iomanip>
 
 
 using namespace std;
@@ -38,8 +42,6 @@ int UdeATunes::reunirTodasCanciones(Cancion*** outArray) {
     *outArray = arr;
     return total;
 }
-
-
 
 
 Publicidad* seleccionarPublicidad(Publicidad** anuncios, int n, Publicidad* ultimo)
@@ -280,73 +282,115 @@ Cancion* UdeATunes::buscarCancionPorId(int id) {
 // NOTA: El directorio 'dir' debe existir (por ejemplo "data/"). Los archivos se crean/reescriben ahí.
 
 bool UdeATunes::guardarDatos(const std::string& dir) {
-    // usuarios
+    // ---- usuarios ----
     std::ofstream fusers(dir + "/usuarios.txt");
-    if (!fusers.is_open()) { std::cerr << "No se pudo abrir usuarios.txt\n"; return false; }
+    if (!fusers.is_open()) {
+        std::cerr << "No se pudo abrir usuarios.txt para guardar\n";
+        return false;
+    }
+
     for (int i = 0; i < usuarios.getCantidad(); ++i) {
         Usuario* u = usuarios.obtener(i);
-        fusers << u->getNickname() << "|" << (u->getVIP() ? "1" : "0") << "|"
-               << /* ciudad / "?" << "|" << / pais / "?" << "|" << / fecha */ "?\n";
-        // Para no romper diseño, si quieres almacenar ciudad/pais/fecha añade getters en Usuario.
-        // Aqui se guardan placeholders si no tienes getters. Si ya tienes getters, reemplaza "?" por los getters.
-        // FAVOR: Si quieres que guarde favoritos, añade getter de ciudad/pais/fecha o modifica esta sección.
+        fusers << u->getNickname() << "|"
+               << (u->getVIP() ? "1" : "0") << "|"
+               << u->getCiudad() << "|"
+               << u->getPais() << "|"
+               << u->getFechaInscripcion() << "\n";
     }
     fusers.close();
 
-    // artistas
+    // ---- artistas ----
     std::ofstream fart(dir + "/artistas.txt");
-    if (!fart.is_open()) { std::cerr << "No se pudo abrir artistas.txt\n"; return false; }
+    if (!fart.is_open()) {
+        std::cerr << "No se pudo abrir artistas.txt para guardar\n";
+        return false;
+    }
     for (int i = 0; i < artistas.getCantidad(); ++i) {
         Artista* a = artistas.obtener(i);
-        // NOTA: Si necesitas exportar seguidores/posicion tendrás que crear getters; asumimos getSeguidores() existe.
-        fart << a->getId() << "|" << a->getEdad() << "|" << a->getNombre() << "|"
-             << a->getPaisOrigen() << "|" << a->getSeguidores() << "|"
+        fart << a->getId() << "|"
+             << a->getEdad() << "|"
+             << a->getNombre() << "|"
+             << a->getPaisOrigen() << "|"
+             << a->getSeguidores() << "|"
              << a->getPosicionTendencia() << "\n";
-        // Si quieres campos completos, añade los getters correspondientes en Artista (edad, pais, posicion)
     }
     fart.close();
 
-    // albumes
+    // ---- álbumes ----
     std::ofstream falb(dir + "/albumes.txt");
-    if (!falb.is_open()) { std::cerr << "No se pudo abrir albumes.txt\n"; return false; }
+    if (!falb.is_open()) {
+        std::cerr << "No se pudo abrir albumes.txt para guardar\n";
+        return false;
+    }
     for (int i = 0; i < artistas.getCantidad(); ++i) {
         Artista* a = artistas.obtener(i);
         for (int j = 0; j < a->getAlbumes().getCantidad(); ++j) {
             Album* alb = a->getAlbumes().obtener(j);
-            falb << alb->getId() << "|" << alb->getNombre() << "|"
-                 << alb->getFechaLanzamiento() << "|" << alb->getSelloDisquero() << "|"
-                 << alb->getPortadaRuta() << "|" << a->getId() << "\n";
-            // Rellenar si agregas getters de fecha/sello
+            falb << alb->getId() << "|"
+                 << alb->getNombre() << "|"
+                 << alb->getFechaLanzamiento() << "|"
+                 << alb->getSelloDisquero() << "|"
+                 << alb->getPortadaRuta() << "|"
+                 << a->getId() << "\n";
         }
     }
     falb.close();
 
-    // canciones
+    // ---- canciones ----
     std::ofstream fcanc(dir + "/canciones.txt");
-    if (!fcanc.is_open()) { std::cerr << "No se pudo abrir canciones.txt\n"; return false; }
+    if (!fcanc.is_open()) {
+        std::cerr << "No se pudo abrir canciones.txt para guardar\n";
+        return false;
+    }
     for (int i = 0; i < artistas.getCantidad(); ++i) {
         Artista* a = artistas.obtener(i);
         for (int j = 0; j < a->getAlbumes().getCantidad(); ++j) {
             Album* alb = a->getAlbumes().obtener(j);
             for (int k = 0; k < alb->getCanciones().getCantidad(); ++k) {
                 Cancion* c = alb->getCanciones().obtener(k);
-                fcanc << c->getId() << "|" << c->getDuracion() << "|" << c->getNombre() << "|"
-                      << c->getRuta128() << "|" << c->getRuta320() << "|" << alb->getId() << "\n";
+                fcanc << c->getId() << "|"
+                      << c->getDuracion() << "|"
+                      << c->getNombre() << "|"
+                      << c->getRuta128() << "|"
+                      << c->getRuta320() << "|"
+                      << alb->getId() << "\n";
             }
         }
     }
     fcanc.close();
 
-    // creditos
+    // ---- créditos ----
     std::ofstream fcred(dir + "/creditos.txt");
-    if (!fcred.is_open()) { std::cerr << "No se pudo abrir creditos.txt\n"; return false; }
-    // Para cada canción, recorrer sus creditos — necesitas getter o exponer creditos o crear función que escriba creditos.
-    // Si no tienes API para obtener creditos, omite esta parte o añade una función para exportarlos.
+    if (!fcred.is_open()) {
+        std::cerr << "No se pudo abrir creditos.txt para guardar\n";
+        return false;
+    }
+    for (int i = 0; i < artistas.getCantidad(); ++i) {
+        Artista* art = artistas.obtener(i);
+        for (int j = 0; j < art->getAlbumes().getCantidad(); ++j) {
+            Album* alb = art->getAlbumes().obtener(j);
+            for (int k = 0; k < alb->getCanciones().getCantidad(); ++k) {
+                Cancion* c = alb->getCanciones().obtener(k);
+                // Para acceder a los créditos, asumimos que tienes getCreditos() en Cancion
+                // Si no lo tienes, agrégalo: MiLista<Creditos>& getCreditos(){ return creditos; }
+                for (int m = 0; m < c->getCreditos().getCantidad(); ++m) {
+                    Creditos* cr = c->getCreditos().obtener(m);
+                    fcred << c->getId() << "|"
+                          << cr->getNombreCompleto() << "|"
+                          << cr->getTipo() << "|"
+                          << cr->getCodigo() << "\n";
+                }
+            }
+        }
+    }
     fcred.close();
 
-    // anuncios
+    // ---- anuncios ----
     std::ofstream fans(dir + "/anuncios.txt");
-    if (!fans.is_open()) { std::cerr << "No se pudo abrir anuncios.txt\n"; return false; }
+    if (!fans.is_open()) {
+        std::cerr << "No se pudo abrir anuncios.txt para guardar\n";
+        return false;
+    }
     for (int i = 0; i < anuncios.getCantidad(); ++i) {
         Publicidad* p = anuncios.obtener(i);
         fans << p->getPeso() << "|" << p->getMensaje() << "\n";
@@ -357,44 +401,43 @@ bool UdeATunes::guardarDatos(const std::string& dir) {
 }
 
 bool UdeATunes::cargarDatos(const std::string& dir) {
-    // NOTA: Esta implementación asume que los archivos existen y están en el formato indicado.
-    // Se crean objetos con new y se enlazan buscando por id (las búsquedas incrementan contadorIteraciones)
-
     // ---- artistas ----
     std::ifstream fart(dir + "/artistas.txt");
     if (fart.is_open()) {
         std::string line;
         while (std::getline(fart, line)) {
             if (line.empty()) continue;
-            // parse: id|edad|nombre|pais|seguidores|posicion
-            size_t pos = 0, nxt;
-            nxt = line.find('|', pos); int id = std::stoi(line.substr(pos, nxt-pos)); pos = nxt+1;
-            nxt = line.find('|', pos); int edad = 0; /* stoi if present */ pos = (nxt==std::string::npos? line.size(): nxt+1);
-            // parse nombre: fallback naive
-            // For simplicity we'll set nombre = whole line remainder if parsing is uncertain
-            // Better: implement robust parsing if your files include the exact format
-            std::string nombre = "Artista_" + std::to_string(id);
-            Artista* a = new Artista(id, edad, nombre, "PaisDesconocido");
+            std::stringstream ss(line);
+            std::string token;
+            std::getline(ss, token, '|'); int id = std::stoi(token);
+            std::getline(ss, token, '|'); int edad = std::stoi(token);
+            std::string nombre, pais;
+            std::getline(ss, nombre, '|');
+            std::getline(ss, pais, '|');
+            std::getline(ss, token, '|'); int seguidores = std::stoi(token);
+            Artista* a = new Artista(id, edad, nombre, pais);
+            for (int i = 0; i < seguidores; ++i) a->agregarSeguidor();
             artistas.agregar(a);
         }
         fart.close();
     }
 
-    // ---- albumes ----
+    // ---- álbumes ----
     std::ifstream falb(dir + "/albumes.txt");
     if (falb.is_open()) {
         std::string line;
         while (std::getline(falb, line)) {
             if (line.empty()) continue;
-            size_t pos = 0, nxt;
-            nxt = line.find('|', pos); int albumId = std::stoi(line.substr(pos, nxt-pos)); pos = nxt+1;
-            nxt = line.find('|', pos); std::string nombre = line.substr(pos, nxt-pos); pos = nxt+1;
-            // skip date/sello for brevity
-            // siguiente campos: fecha|sello|portada|artistaId
-            // find last '|' to extract artistaId
-            size_t last = line.rfind('|');
-            int artId = std::stoi(line.substr(last+1));
-            Album* alb = new Album(albumId, nombre, "0000-00-00", "Sello?", "portada.png");
+            std::stringstream ss(line);
+            std::string token;
+            std::getline(ss, token, '|'); int albumId = std::stoi(token);
+            std::string nombre, fecha, sello, portada;
+            std::getline(ss, nombre, '|');
+            std::getline(ss, fecha, '|');
+            std::getline(ss, sello, '|');
+            std::getline(ss, portada, '|');
+            std::getline(ss, token, '|'); int artId = std::stoi(token);
+            Album* alb = new Album(albumId, nombre, fecha, sello, portada);
             Artista* a = buscarArtistaPorId(artId);
             if (a) a->agregarAlbum(alb);
         }
@@ -407,13 +450,15 @@ bool UdeATunes::cargarDatos(const std::string& dir) {
         std::string line;
         while (std::getline(fcanc, line)) {
             if (line.empty()) continue;
-            size_t pos = 0, nxt;
-            nxt = line.find('|', pos); int id = std::stoi(line.substr(pos, nxt-pos)); pos = nxt+1;
-            nxt = line.find('|', pos); float dur = std::stof(line.substr(pos, nxt-pos)); pos = nxt+1;
-            nxt = line.find('|', pos); std::string nombre = line.substr(pos, nxt-pos); pos = nxt+1;
-            nxt = line.find('|', pos); std::string ruta128 = line.substr(pos, nxt-pos); pos = nxt+1;
-            nxt = line.find('|', pos); std::string ruta320 = line.substr(pos, nxt-pos); pos = nxt+1;
-            int albumId = std::stoi(line.substr(pos));
+            std::stringstream ss(line);
+            std::string token;
+            std::getline(ss, token, '|'); int id = std::stoi(token);
+            std::getline(ss, token, '|'); float dur = std::stof(token);
+            std::string nombre, ruta128, ruta320;
+            std::getline(ss, nombre, '|');
+            std::getline(ss, ruta128, '|');
+            std::getline(ss, ruta320, '|');
+            std::getline(ss, token, '|'); int albumId = std::stoi(token);
             Cancion* c = new Cancion(id, dur, nombre, ruta128, ruta320);
             Album* alb = buscarAlbumPorId(albumId);
             if (alb) alb->agregarCancion(c);
@@ -421,19 +466,20 @@ bool UdeATunes::cargarDatos(const std::string& dir) {
         fcanc.close();
     }
 
-    // ---- creditos ----
+    // ---- créditos ----
     std::ifstream fcred(dir + "/creditos.txt");
     if (fcred.is_open()) {
         std::string line;
         while (std::getline(fcred, line)) {
             if (line.empty()) continue;
-            // formato: cancionId|nombre|apellido|tipo|codigo
-            size_t pos = 0, nxt;
-            nxt = line.find('|', pos); int cid = std::stoi(line.substr(pos, nxt-pos)); pos = nxt+1;
-            nxt = line.find('|', pos); std::string nom = line.substr(pos, nxt-pos); pos = nxt+1;
-            nxt = line.find('|', pos); std::string ape = line.substr(pos, nxt-pos); pos = nxt+1;
-            nxt = line.find('|', pos); std::string tipo = line.substr(pos, nxt-pos); pos = nxt+1;
-            std::string cod = line.substr(pos);
+            std::stringstream ss(line);
+            std::string token;
+            std::getline(ss, token, '|'); int cid = std::stoi(token);
+            std::string nom, ape, tipo, cod;
+            std::getline(ss, nom, '|');
+            std::getline(ss, ape, '|');
+            std::getline(ss, tipo, '|');
+            std::getline(ss, cod, '|');
             Cancion* c = buscarCancionPorId(cid);
             if (c) {
                 Creditos* cr = new Creditos(nom, ape, tipo, cod);
@@ -451,7 +497,7 @@ bool UdeATunes::cargarDatos(const std::string& dir) {
             if (line.empty()) continue;
             size_t pos = line.find('|');
             int cat = std::stoi(line.substr(0, pos));
-            std::string msg = line.substr(pos+1);
+            std::string msg = line.substr(pos + 1);
             Publicidad::Categoria pc = Publicidad::C;
             if (cat == 2) pc = Publicidad::B;
             else if (cat == 3) pc = Publicidad::A;

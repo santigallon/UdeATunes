@@ -61,7 +61,7 @@ public:
         return nullptr;
     }
 
-    int getCantidad(){ return cantidad;}
+    int getCantidad()const{ return cantidad;}
     int getCapacidad(){ return capacidad; }
 
     void clear()
