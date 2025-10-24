@@ -1,19 +1,24 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
+
 #include "udeatunes.h"
 #include "usuario.h"
 #include "artista.h"
 #include "album.h"
 #include "cancion.h"
 #include "creditos.h"
+#include "publicidad.h"
 
 using namespace std;
 
 int main() {
-    // Creamos la aplicación
+    srand((unsigned)time(nullptr));
+
     UdeATunes app;
 
     cout << "==========================" << endl;
-    cout << "   UdeATunes Iniciado 🎶   " << endl;
+    cout << "   UdeATunes Iniciado    " << endl;
     cout << "==========================" << endl << endl;
 
     // ---------- Crear artistas ----------
@@ -24,20 +29,20 @@ int main() {
     app.agregarArtista(karolG);
 
     // ---------- Crear álbumes ----------
-    Album* verano = new Album(100, "Un Verano Sin Ti", "2022-05-06", "Rimas", "portada_verano.jpg");
-    Album* mañana = new Album(101, "Mañana Será Bonito", "2023-02-24", "Universal", "portada_manana.jpg");
+    Album* verano = new Album(100, "Un Verano Sin Ti", "2022-05-06", "Rimas", "/users/storage/badbunny/image/verano.png");
+    Album* manana = new Album(101, "Mañana Será Bonito", "2023-02-24", "Universal", "/users/storage/karolg/image/manana.png");
 
     badBunny->agregarAlbum(verano);
-    karolG->agregarAlbum(mañana);
+    karolG->agregarAlbum(manana);
 
     // ---------- Crear canciones ----------
-    Cancion* ojitos = new Cancion(200, 3.45, "Ojitos Lindos", "ojitos128.mp3", "ojitos320.mp3");
-    Cancion* titi   = new Cancion(201, 3.60, "Titi Me Preguntó", "titi128.mp3", "titi320.mp3");
-    Cancion* provenza = new Cancion(202, 3.20, "Provenza", "provenza128.mp3", "provenza320.mp3");
+    Cancion* ojitos = new Cancion(200, 3.45, "Ojitos Lindos", "/users/.../ojitos_128.ogg", "/users/.../ojitos_320.ogg");
+    Cancion* titi   = new Cancion(201, 3.60, "Titi Me Preguntó", "/users/.../titi_128.ogg", "/users/.../titi_320.ogg");
+    Cancion* provenza = new Cancion(202, 3.20, "Provenza", "/users/.../provenza_128.ogg", "/users/.../provenza_320.ogg");
 
     verano->agregarCancion(ojitos);
     verano->agregarCancion(titi);
-    mañana->agregarCancion(provenza);
+    manana->agregarCancion(provenza);
 
     // ---------- Crear créditos ----------
     Creditos* prod1 = new Creditos("Noah", "Assad", "Productor", "RIM001");
@@ -52,46 +57,38 @@ int main() {
     app.agregarUsuario(santi);
     app.agregarUsuario(laura);
 
+    // ---------- Publicidad ----------
+    app.agregarPublicidad(new Publicidad("Compra ya el nuevo producto X", Publicidad::C));
+    app.agregarPublicidad(new Publicidad("Oferta especial - 50% hoy", Publicidad::B));
+    app.agregarPublicidad(new Publicidad("Suscríbete a AAA Premium", Publicidad::A));
+
     // ---------- Mostrar usuarios ----------
     cout << "\n--- Lista de usuarios ---" << endl;
     app.mostrarUsuarios();
 
-    // ---------- Simular sesión ----------
-    cout << "\n--- Inicio de sesión ---" << endl;
-    app.iniciarSesion();
+    // ---------- Reproducción aleatoria: probar para usuario estándar (Laura) y VIP (Santi) ----------
+    cout << "\n--- Reproducción aleatoria (usuario estándar - Laura) ---" << endl;
+    app.reproduccionAleatoria(laura, 5);
 
-    // ---------- Mostrar artistas ----------
-    cout << "\n--- Artistas ---" << endl;
-    badBunny->mostrarInfo();
-    karolG->mostrarInfo();
+    cout << "\n--- Reproducción aleatoria (usuario VIP - Santiago) ---" << endl;
+    app.reproduccionAleatoria(santi, 5);
 
-    // ---------- Mostrar álbumes ----------
-    cout << "\n--- Canciones de 'Un Verano Sin Ti' ---" << endl;
-    verano->mostrarCanciones();
+    // ---------- Favoritos VIP ----------
+    cout << "\n--- Favoritos (VIP) ---" << endl;
+    santi->agregarFavorito(ojitos);
+    santi->agregarFavorito(provenza); // se puede agregar canciones de otros álbumes
+    santi->ejecutarFavoritos(true, 4);
 
-    cout << "\n--- Canciones de 'Mañana Será Bonito' ---" << endl;
-    mañana->mostrarCanciones();
-
-    // ---------- Reproducir canciones ----------
-    cout << "\n--- Reproducción ---" << endl;
-    santi->reproducir(ojitos);
-    laura->reproducir(provenza);
-
-    // ---------- Simular acciones del usuario ----------
-    santi->pasarCancion();
-    laura->pausarCancion();
-    santi->seguir(badBunny);
-    laura->seguir(karolG);
-
-    // ---------- Mostrar memoria usada ----------
+    // ---------- Uso de memoria ----------
     cout << "\n--- Uso de memoria ---" << endl;
     app.memoriaUsada();
 
-    // ---------- Liberar memoria ----------
+    // ---------- Liberar memoria (objetos creados con new) ----------
+    // Nota: para la entrega puedes decidir si liberas todo o no. Aquí lo hacemos.
     delete badBunny;
     delete karolG;
     delete verano;
-    delete mañana;
+    delete manana;
     delete ojitos;
     delete titi;
     delete provenza;
@@ -101,7 +98,7 @@ int main() {
     delete laura;
 
     cout << "\n============================" << endl;
-    cout << "   Programa Finalizado ✅   " << endl;
+    cout << "   Programa Finalizado   " << endl;
     cout << "============================" << endl;
 
     return 0;

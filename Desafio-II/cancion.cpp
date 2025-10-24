@@ -1,5 +1,7 @@
 #include "cancion.h"
 
+#include <iostream>
+
 void Cancion::agregarCreditos(Creditos* c)
 {
     creditos.agregar(c);

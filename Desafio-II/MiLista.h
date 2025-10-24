@@ -9,13 +9,13 @@ private:
     int cantidad;
     int capacidad;
 
-    void redimencionar ()
+    void redimensionar ()
     {
-        capacidad *=2;
+        capacidad *= 2;
         T** nuevo = new T*[capacidad];
         for(int i = 0; i < cantidad; i++)
         {
-            nuevo[i]= elementos [i];
+            nuevo[i] = elementos[i];
         }
         delete[] elementos;
         elementos = nuevo;
@@ -30,25 +30,23 @@ public:
 
     void agregar (T* element)
     {
-        if (cantidad == capacidad)redimencionar();
-        elementos [cantidad++] = element;
+        if (cantidad == capacidad) redimensionar();
+        elementos[cantidad++] = element;
     }
 
-    T* obtener (int i)
+    bool contiene(T* element)
     {
-        if (i >= 0 && i <cantidad)
-            return elementos[i];
-        return nullptr;
+        for (int i = 0; i < cantidad; ++i)
+            if (elementos[i] == element) return true;
+        return false;
     }
 
     bool eliminar(T* element)
     {
-        for (int i = 0; i < cantidad; ++i)
-        {
-            if (elementos[i]==element)
-            {
-                for (int j = i; j + 1 <cantidad; ++j)
-                    elementos [j] = elementos[j+1];
+        for (int i = 0; i < cantidad; ++i) {
+            if (elementos[i] == element) {
+                for (int j = i; j + 1 < cantidad; ++j)
+                    elementos[j] = elementos[j+1];
                 cantidad--;
                 return true;
             }
@@ -56,17 +54,20 @@ public:
         return false;
     }
 
-    bool contiene(T* element)
+    T* obtener (int i)
     {
-        for (int i = 0; i < cantidad; ++i)
-            if (elementos[i]==element)return true;
-        return false;
+        if (i >= 0 && i < cantidad)
+            return elementos[i];
+        return nullptr;
     }
 
     int getCantidad(){ return cantidad;}
-    int getCapacidad(){return capacidad;}
-    void clear(){cantidad=0;}
+    int getCapacidad(){ return capacidad; }
 
+    void clear()
+    {
+        cantidad = 0;
+    }
 
     ~MiLista()
     {

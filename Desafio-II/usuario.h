@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 
+#include "publicidad.h"
+#include "MiLista.h"
 #include "cancion.h"
 #include "artista.h"
 
@@ -17,23 +19,35 @@ private:
     string ciudad;
     string pais;
     string fechaInscripcion;
+    MiLista<Cancion> favoritos;
+    MiLista<Publicidad> anuncios;
 
 public:
     Usuario(bool VIP, string nic, string ciu, string pa, string fecha)
-        : membresia(VIP), nickname(nic), ciudad(ciu), pais(pa), fechaInscripcion(fecha) {}
+        : membresia(VIP), nickname(nic), ciudad(ciu), pais(pa), fechaInscripcion(fecha), favoritos(20) {}
 
     bool getVIP();
+    bool agregarFavorito(Cancion* C);
+    bool eliminarFavorito(Cancion* C);
+    string getCiudad() const{return ciudad; }
+    string getPais()const {return pais; }
+    string getFechaInscripcion()const{return fechaInscripcion; }
     string getNickname();
     void reproducir(Cancion* c);
-    void propagandas();
+    void publicidad();
     void pasarCancion();
+    void propagandas();
     void regresarCancion();
     void pausarCancion();
     void misFavoritos();
-    void leerListasUsVIP();
+    void ejecutarFavoritos(bool aleatorio, int K=5);
+    void seguirFavoritosDe(Usuario* otro);
     void aleatorio();
+    void leerListasUsVIP();
     void reproducirUno(Cancion* c);
     void seguir(Artista* a);
+    MiLista<Cancion>& getFavoritso(){return favoritos; }
+
 };
 
 #endif // USUARIO_H

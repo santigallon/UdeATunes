@@ -2,21 +2,24 @@
 #define PUBLICIDAD_H
 
 #include <string>
-
 using namespace std;
 
-class Publicidad
-{
+class Publicidad {
+public:
+    enum Categoria { C = 1, B = 2, A = 3 };
+
 private:
-    char categoria;
     string mensaje;
+    Categoria categoria;
 
 public:
-    Publicidad(string m, char c)
-        : mensaje(m), categoria(c) {}
+    Publicidad(string msg, Categoria cat)
+        : mensaje(msg), categoria(cat) {}
 
-    int getPrioridad();
-    string getMensaje();
+    string getMensaje() const { return mensaje; }
+    Categoria getCategoria() const { return categoria; }
+
+    int getPeso() const { return static_cast<int>(categoria); }
 };
 
 #endif // PUBLICIDAD_H
