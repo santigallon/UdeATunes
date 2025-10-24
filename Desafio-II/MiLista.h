@@ -41,7 +41,32 @@ public:
         return nullptr;
     }
 
+    bool eliminar(T* element)
+    {
+        for (int i = 0; i < cantidad; ++i)
+        {
+            if (elementos[i]==element)
+            {
+                for (int j = i; j + 1 <cantidad; ++j)
+                    elementos [j] = elementos[j+1];
+                cantidad--;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool contiene(T* element)
+    {
+        for (int i = 0; i < cantidad; ++i)
+            if (elementos[i]==element)return true;
+        return false;
+    }
+
     int getCantidad(){ return cantidad;}
+    int getCapacidad(){return capacidad;}
+    void clear(){cantidad=0;}
+
 
     ~MiLista()
     {

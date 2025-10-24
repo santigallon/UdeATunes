@@ -19,6 +19,8 @@ public:
         :nombre(nom), apellido(ape), tipo(tip), codigoAfiliacion(cod) {}
 
     string getNombreCompleto();
+    string getTipo();
+    string getCodigo();
 };
 
 #endif // CREDITOS_H
