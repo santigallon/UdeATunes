@@ -194,66 +194,65 @@ int main() {
         if (resp == 's' || resp == 'S') {
             system(("mkdir " + carpeta).c_str());
             ofstream fUsuarios(carpeta + "/usuarios.txt");
-            fUsuarios << "1|Carlos Perez|carlitos|1234|1\n";
-            fUsuarios << "2|Ana Gomez|anita|abcd|0\n";
-            fUsuarios << "3|Santiago Gallon|santig|4321|1\n";
+            fUsuarios << "carlitos|1|Medellin|Colombia|2025-10-24\n";
+            fUsuarios << "anita|0|Bogota|Colombia|2025-10-24\n";
+            fUsuarios << "santig|1|Andes|Colombia|2025-10-24\n";
             fUsuarios.close();
 
             ofstream fArtistas(carpeta + "/artistas.txt");
-            fArtistas << "10001|Shakira|46|Colombia|1500000|1\n";
-            fArtistas << "10002|Juanes|50|Colombia|800000|2\n";
+            fArtistas << "10001|46|Shakira|Colombia|1500000|1\n";
+            fArtistas << "10002|50|Juanes|Colombia|800000|2\n";
             fArtistas.close();
 
             ofstream fAlbumes(carpeta + "/albumes.txt");
-            fAlbumes << "10001|01|Sale el Sol|Pop|2010|3600|Sony|/users/storage/shakira/image/sale_el_sol.png|9\n";
-            fAlbumes << "10002|01|Un dia normal|Rock|2002|3000|Universal|/users/storage/juanes/image/un_dia_normal.png|8\n";
+            fAlbumes << "100010|Sale el Sol|2010|Sony|data/portadas/sale_el_sol.png|10001\n";
+            fAlbumes << "100020|Un Dia Normal|2002|Universal|data/portadas/un_dia_normal.png|10002\n";
             fAlbumes.close();
 
             ofstream fCanciones(carpeta + "/canciones.txt");
-            fCanciones << "1000101|Loca|180|/users/storage/shakira/audio/loca_128.ogg|/users/storage/shakira/audio/loca_320.ogg|0\n";
-            fCanciones << "1000201|A Dios le Pido|200|/users/storage/juanes/audio/adioslepido_128.ogg|/users/storage/juanes/audio/adioslepido_320.ogg|0\n";
+            fCanciones << "1000101|180|Loca|data/audio/loca_128.ogg|data/audio/loca_320.ogg|100010\n";
+            fCanciones << "1000201|200|A Dios le Pido|data/audio/adioslepido_128.ogg|data/audio/adioslepido_320.ogg|100020\n";
             fCanciones.close();
 
-            ofstream fPubli(carpeta + "/publicidad.txt");
-            fPubli << "Promo1|C|Disfruta café colombiano premium\n";
-            fPubli << "Promo2|B|Compra guitarras con 20% de descuento\n";
-            fPubli << "Promo3|AAA|Viaja con descuento exclusivo a Medellín\n";
-            fPubli.close();
+            ofstream fAnuncios(carpeta + "/anuncios.txt");
+            fAnuncios << "3|Viaja con descuento exclusivo a Medellín\n";
+            fAnuncios << "2|Compra guitarras con 20% de descuento\n";
+            fAnuncios << "1|Disfruta café colombiano premium\n";
+            fAnuncios.close();
 
             cout << "Archivos de ejemplo creados en '" << carpeta << "/'. Ejecute nuevamente el programa.\n";
             return 0;
         }
     }
-    if (!cargado) {
-        cout << "No se encontraron datos o hubo problemas cargando. Continúe y los cambios se guardarán al salir.\n";
-    } else {
-        cout << "Datos cargados correctamente.\n";
-    }
 
+    cout << "Datos cargados correctamente.\n";
+
+    //Iniciar Kron (guardado automático cada 60 segundos)
+    app.iniciarKron(carpeta, 60);
+
+    //Menú principal y lógica del programa
     while (true) {
         int opc = menuPrincipal();
         if (opc == 1) {
             cout << "Ingrese nickname: ";
-            string nick; cin >> nick;
+            string nick;
+            cin >> nick;
 
-            // Buscar usuario
-            Usuario* user = app.buscarUsuarioPorNicknamePublic(nick); // esta función debe existir; si no, la agregamos
+            Usuario* user = app.buscarUsuarioPorNicknamePublic(nick);
             if (!user) {
                 cout << "Usuario no encontrado. Intente de nuevo.\n";
                 continue;
             }
 
             cout << "Bienvenido, " << user->getNickname() << "!\n";
+
             if (user->getVIP()) {
-                // Menú Premium
                 bool session = true;
                 while (session) {
                     int op = menuPremium();
-                    if (op == 1) {
-                        // reproducción aleatoria con interacción premium
+                    if (op == 1)
                         reproduccionPremiumInteractiva(app, user, 5);
-                    } else if (op == 2) {
-                        // Favoritos
+                    else if (op == 2) {
                         bool favBack = false;
                         while (!favBack) {
                             int fop = menuFavoritos();
@@ -261,37 +260,36 @@ int main() {
                                 cout << "Ingrese ID de canción a agregar: ";
                                 int id; cin >> id;
                                 Cancion* c = app.buscarCancionPorIdPublic(id);
-                                if (!c) { cout << "Canción no encontrada.\n"; }
+                                if (!c) cout << "Canción no encontrada.\n";
                                 else user->agregarFavorito(c);
                             } else if (fop == 2) {
                                 cout << "Ingrese ID de canción a eliminar: ";
                                 int id; cin >> id;
                                 Cancion* c = app.buscarCancionPorIdPublic(id);
-                                if (!c) { cout << "Canción no encontrada.\n"; }
+                                if (!c) cout << "Canción no encontrada.\n";
                                 else user->eliminarFavorito(c);
                             } else if (fop == 3) {
                                 cout << "Ingrese nickname del usuario a seguir: ";
                                 string otro; cin >> otro;
                                 Usuario* u2 = app.buscarUsuarioPorNicknamePublic(otro);
-                                if (!u2) cout << "Usuario a seguir no encontrado.\n";
+                                if (!u2) cout << "Usuario no encontrado.\n";
                                 else user->seguirFavoritosDe(u2);
                             } else if (fop == 4) {
                                 app.resetContadorIter();
-                                user->ejecutarFavoritos(false, 6); // orden original, M=6
-                                cout << "Iteraciones (ejecutarFavoritos): " << app.getContadorIter() << "\n";
+                                user->ejecutarFavoritos(false, 6);
+                                cout << "Iteraciones: " << app.getContadorIter() << "\n";
                                 app.memoriaUsada();
                             } else if (fop == 5) {
                                 app.resetContadorIter();
                                 user->ejecutarFavoritos(true, 6);
-                                cout << "Iteraciones (ejecutarFavoritos aleatorio): " << app.getContadorIter() << "\n";
+                                cout << "Iteraciones (aleatorio): " << app.getContadorIter() << "\n";
                                 app.memoriaUsada();
                             } else {
                                 favBack = true;
                             }
                         }
                     } else if (op == 3) {
-                        // Mostrar métricas (global)
-                        cout << "Iteraciones actuales (acumuladas): " << app.getContadorIter() << "\n";
+                        cout << "Iteraciones actuales: " << app.getContadorIter() << "\n";
                         app.memoriaUsada();
                     } else {
                         session = false;
@@ -299,7 +297,6 @@ int main() {
                     }
                 }
             } else {
-                // Menú Estándar
                 bool session = true;
                 while (session) {
                     int op = menuEstandar();
@@ -307,7 +304,7 @@ int main() {
                         app.resetContadorIter();
                         reproduccionEstandar(app, user, 5);
                     } else if (op == 2) {
-                        cout << "Iteraciones actuales (acumuladas): " << app.getContadorIter() << "\n";
+                        cout << "Iteraciones actuales: " << app.getContadorIter() << "\n";
                         app.memoriaUsada();
                     } else {
                         session = false;
@@ -315,17 +312,21 @@ int main() {
                     }
                 }
             }
-
-        } else {
-            // SALIR: guardar datos y terminar
-            cout << "Guardando datos en 'data/' ...\n";
-            bool ok = app.guardarDatos("data");
-            if (!ok) cout << "Advertencia: no se pudieron guardar algunos archivos.\n";
-            else cout << "Datos guardados correctamente.\n";
-            cout << "Saliendo. ¡Hasta luego!\n";
+        }
+        else if (opc == 2) {
+            cout << "Guardando datos en '" << carpeta << "'...\n";
+            app.guardarDatos(carpeta);
+            cout << "Saliendo del programa...\n";
             break;
         }
-    } // while true
+        else {
+            cout << "Opción inválida.\n";
+        }
+    }
+
+    // Detener Kron antes de salir
+    app.detenerKron();
+    cout << "[Kron] Finalizado correctamente.\n";
 
     return 0;
 }

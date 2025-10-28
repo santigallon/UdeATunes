@@ -1,74 +1,94 @@
-# This file is used to ignore files which are generated
+# ----------------------------------------------------------------------------
+# ARCHIVOS GENERADOS AUTOMÁTICAMENTE (IGNORAR)
 # ----------------------------------------------------------------------------
 
+# Archivos temporales y de respaldo
 *~
 *.autosave
-*.a
-*.core
-*.moc
-*.o
-*.obj
 *.orig
 *.rej
-*.so
-*.so.*
-*_pch.h.cpp
-*_resource.rc
-*.qm
-.#*
-*.*#
-core
-!core/
-tags
-.DS_Store
-.directory
-*.debug
-Makefile*
-*.prl
-*.app
-moc_*.cpp
-ui_*.h
-qrc_*.cpp
-Thumbs.db
-*.res
-*.rc
-/.qmake.cache
-/.qmake.stash
-
-# qtcreator generated files
-*.pro.user*
-CMakeLists.txt.user*
-
-# xemacs temporary files
+*.log
+*.tmp
+*.bak
+*.swp
 *.flc
 
-# Vim temporary files
-.*.swp
-
-# Visual Studio generated files
-*.ib_pdb_index
-*.idb
-*.ilk
+# Archivos binarios
+*.exe
+*.dll
+*.so
+.so.
+*.a
+*.obj
+*.o
+*.res
 *.pdb
-*.sln
-*.suo
-*.vcproj
-*vcproj.*.*.user
+*.ilk
+*.idb
 *.ncb
 *.sdf
 *.opensdf
 *.vcxproj
-*vcxproj.*
-
-# MinGW generated files
+*.vcproj
+*.vcxproj.user
+*.suo
+*.sln
 *.Debug
 *.Release
+*.core
 
-# Python byte code
+# Archivos generados por Qt / MOC / UI
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+*.moc
+*.prl
+*.qmake.cache
+*.qmake.stash
+Makefile*
+*.app
+*.qmlc
+*.jsc
+.pro.user
+CMakeLists.txt.user*
+*.qm
+*.debug
+
+# Carpetas y caché de Qt Creator / clangd
+build/
+*/.qtc_clangd/
+*/.cache/
+*.idx
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+.directory
+tags
+
+# Archivos de configuración local o de IDE
+*.user
+*.pro.user
+.user.
+*.vs/
+*.idea/
+.vscode/
+.qtc_clangd/
+.cache/
+
+# Python bytecode (por si se usa para scripts auxiliares)
 *.pyc
 
-# Binaries
-# --------
-*.dll
-*.exe
+# Carpetas de datos temporales
+data/
+temp/
+logs/
 
+# ----------------------------------------------------------------------------
+# EXCEPCIONES (archivos que SÍ deben subirse)
+# ----------------------------------------------------------------------------
+
+!README.md
+!informe/
+!Desafio-II/*.cpp
+!Desafio-II/*.h

@@ -3,6 +3,9 @@
 
 #include <string>
 #include <iostream>
+#include <thread>
+#include <atomic>
+#include <chrono>
 
 #include "MiLista.h"
 #include "usuario.h"
@@ -22,6 +25,8 @@ private:
     MiLista<Usuario> usuarios;
     MiLista<Artista> artistas;
     MiLista<Publicidad> anuncios;
+    atomic<bool> kronActivo;
+    thread hiloKron;
 
 public:
     UdeATunes() : usuarios(10), artistas(10), anuncios(10) {}
@@ -40,6 +45,8 @@ public:
     void agregarPublicidad(Publicidad* p);
     void resetContadorIter() { contadorIteraciones = 0; }
     void incrementIter() { contadorIteraciones++; }
+    void iniciarKron(const std::string& rutaDatos, int segundos);
+    void detenerKron();
     Publicidad* seleccionarPublicidad(Publicidad* ultimo);
     Usuario* getUsuarioAt(int i) { return usuarios.obtener(i); }
     Artista* getArtistaAt(int i) { return artistas.obtener(i); }

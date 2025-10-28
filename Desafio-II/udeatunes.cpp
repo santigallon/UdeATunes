@@ -270,242 +270,278 @@ Cancion* UdeATunes::buscarCancionPorId(int id) {
     return nullptr;
 }
 
-// Formatos de archivo usados:
-//
-// usuarios.txt: nickname|VIP(0/1)|ciudad|pais|fecha|favId1,favId2,...
-// artistas.txt: id|edad|nombre|pais|seguidores|posicionTendencia
-// albumes.txt: albumId|nombre|fecha|sello|portadaRuta|artistaId
-// canciones.txt: cancionId|duracion|nombre|ruta128|ruta320|albumId
-// creditos.txt: cancionId|nombre|apellido|tipo|codigoAfiliacion
-// anuncios.txt: categoria(1=C,2=B,3=A)|mensaje\n
-//
-// NOTA: El directorio 'dir' debe existir (por ejemplo "data/"). Los archivos se crean/reescriben ahí.
-
 bool UdeATunes::guardarDatos(const std::string& dir) {
-    // ---- usuarios ----
-    std::ofstream fusers(dir + "/usuarios.txt");
-    if (!fusers.is_open()) {
-        std::cerr << "No se pudo abrir usuarios.txt para guardar\n";
-        return false;
-    }
-
-    for (int i = 0; i < usuarios.getCantidad(); ++i) {
-        Usuario* u = usuarios.obtener(i);
-        fusers << u->getNickname() << "|"
-               << (u->getVIP() ? "1" : "0") << "|"
-               << u->getCiudad() << "|"
-               << u->getPais() << "|"
-               << u->getFechaInscripcion() << "\n";
-    }
-    fusers.close();
-
-    // ---- artistas ----
-    std::ofstream fart(dir + "/artistas.txt");
-    if (!fart.is_open()) {
-        std::cerr << "No se pudo abrir artistas.txt para guardar\n";
-        return false;
-    }
-    for (int i = 0; i < artistas.getCantidad(); ++i) {
-        Artista* a = artistas.obtener(i);
-        fart << a->getId() << "|"
-             << a->getEdad() << "|"
-             << a->getNombre() << "|"
-             << a->getPaisOrigen() << "|"
-             << a->getSeguidores() << "|"
-             << a->getPosicionTendencia() << "\n";
-    }
-    fart.close();
-
-    // ---- álbumes ----
-    std::ofstream falb(dir + "/albumes.txt");
-    if (!falb.is_open()) {
-        std::cerr << "No se pudo abrir albumes.txt para guardar\n";
-        return false;
-    }
-    for (int i = 0; i < artistas.getCantidad(); ++i) {
-        Artista* a = artistas.obtener(i);
-        for (int j = 0; j < a->getAlbumes().getCantidad(); ++j) {
-            Album* alb = a->getAlbumes().obtener(j);
-            falb << alb->getId() << "|"
-                 << alb->getNombre() << "|"
-                 << alb->getFechaLanzamiento() << "|"
-                 << alb->getSelloDisquero() << "|"
-                 << alb->getPortadaRuta() << "|"
-                 << a->getId() << "\n";
+    auto abrir = [&](const std::string& path, std::ofstream& f) -> bool {
+        f.open(path, std::ios::trunc);
+        if (!f.is_open()) {
+            cerr << "[ERROR] No se pudo abrir " << path << " para guardar.\n";
+            return false;
         }
-    }
-    falb.close();
+        return true;
+    };
 
-    // ---- canciones ----
-    std::ofstream fcanc(dir + "/canciones.txt");
-    if (!fcanc.is_open()) {
-        std::cerr << "No se pudo abrir canciones.txt para guardar\n";
-        return false;
+    std::ofstream f;
+
+    // === USUARIOS ===
+    if (abrir(dir + "/usuarios.txt", f)) {
+        for (int i = 0; i < usuarios.getCantidad(); ++i) {
+            Usuario* u = usuarios.obtener(i);
+            f << u->getNickname() << "|" << (u->getVIP() ? 1 : 0) << "|"
+              << u->getCiudad() << "|" << u->getPais() << "|"
+              << u->getFechaInscripcion() << "\n";
+        }
+        f.close();
     }
-    for (int i = 0; i < artistas.getCantidad(); ++i) {
-        Artista* a = artistas.obtener(i);
-        for (int j = 0; j < a->getAlbumes().getCantidad(); ++j) {
-            Album* alb = a->getAlbumes().obtener(j);
-            for (int k = 0; k < alb->getCanciones().getCantidad(); ++k) {
-                Cancion* c = alb->getCanciones().obtener(k);
-                fcanc << c->getId() << "|"
-                      << c->getDuracion() << "|"
-                      << c->getNombre() << "|"
-                      << c->getRuta128() << "|"
-                      << c->getRuta320() << "|"
-                      << alb->getId() << "\n";
+
+    // === ARTISTAS ===
+    if (abrir(dir + "/artistas.txt", f)) {
+        for (int i = 0; i < artistas.getCantidad(); ++i) {
+            Artista* a = artistas.obtener(i);
+            f << a->getId() << "|" << a->getEdad() << "|"
+              << a->getNombre() << "|" << a->getPaisOrigen() << "|"
+              << a->getSeguidores() << "|" << a->getPosicionTendencia() << "\n";
+        }
+        f.close();
+    }
+
+    // === ÁLBUMES ===
+    if (abrir(dir + "/albumes.txt", f)) {
+        for (int i = 0; i < artistas.getCantidad(); ++i) {
+            Artista* a = artistas.obtener(i);
+            for (int j = 0; j < a->getAlbumes().getCantidad(); ++j) {
+                Album* alb = a->getAlbumes().obtener(j);
+                f << alb->getId() << "|" << alb->getNombre() << "|"
+                  << alb->getFechaLanzamiento() << "|" << alb->getSelloDisquero()
+                  << "|" << alb->getPortadaRuta() << "|" << a->getId() << "\n";
             }
         }
+        f.close();
     }
-    fcanc.close();
 
-    // ---- créditos ----
-    std::ofstream fcred(dir + "/creditos.txt");
-    if (!fcred.is_open()) {
-        std::cerr << "No se pudo abrir creditos.txt para guardar\n";
-        return false;
-    }
-    for (int i = 0; i < artistas.getCantidad(); ++i) {
-        Artista* art = artistas.obtener(i);
-        for (int j = 0; j < art->getAlbumes().getCantidad(); ++j) {
-            Album* alb = art->getAlbumes().obtener(j);
-            for (int k = 0; k < alb->getCanciones().getCantidad(); ++k) {
-                Cancion* c = alb->getCanciones().obtener(k);
-                // Para acceder a los créditos, asumimos que tienes getCreditos() en Cancion
-                // Si no lo tienes, agrégalo: MiLista<Creditos>& getCreditos(){ return creditos; }
-                for (int m = 0; m < c->getCreditos().getCantidad(); ++m) {
-                    Creditos* cr = c->getCreditos().obtener(m);
-                    fcred << c->getId() << "|"
-                          << cr->getNombreCompleto() << "|"
-                          << cr->getTipo() << "|"
-                          << cr->getCodigo() << "\n";
+    // === CANCIONES ===
+    if (abrir(dir + "/canciones.txt", f)) {
+        for (int i = 0; i < artistas.getCantidad(); ++i) {
+            Artista* a = artistas.obtener(i);
+            for (int j = 0; j < a->getAlbumes().getCantidad(); ++j) {
+                Album* alb = a->getAlbumes().obtener(j);
+                for (int k = 0; k < alb->getCanciones().getCantidad(); ++k) {
+                    Cancion* c = alb->getCanciones().obtener(k);
+                    f << c->getId() << "|" << c->getDuracion() << "|"
+                      << c->getNombre() << "|" << c->getRuta128() << "|"
+                      << c->getRuta320() << "|" << alb->getId() << "\n";
                 }
             }
         }
+        f.close();
     }
-    fcred.close();
 
-    // ---- anuncios ----
-    std::ofstream fans(dir + "/anuncios.txt");
-    if (!fans.is_open()) {
-        std::cerr << "No se pudo abrir anuncios.txt para guardar\n";
-        return false;
+    // === CRÉDITOS ===
+    if (abrir(dir + "/creditos.txt", f)) {
+        for (int i = 0; i < artistas.getCantidad(); ++i) {
+            Artista* art = artistas.obtener(i);
+            for (int j = 0; j < art->getAlbumes().getCantidad(); ++j) {
+                Album* alb = art->getAlbumes().obtener(j);
+                for (int k = 0; k < alb->getCanciones().getCantidad(); ++k) {
+                    Cancion* c = alb->getCanciones().obtener(k);
+                    for (int m = 0; m < c->getCreditos().getCantidad(); ++m) {
+                        Creditos* cr = c->getCreditos().obtener(m);
+                        f << c->getId() << "|" << cr->getNombreCompleto() << "|"
+                          << cr->getTipo() << "|" << cr->getCodigo() << "\n";
+                    }
+                }
+            }
+        }
+        f.close();
     }
-    for (int i = 0; i < anuncios.getCantidad(); ++i) {
-        Publicidad* p = anuncios.obtener(i);
-        fans << p->getPeso() << "|" << p->getMensaje() << "\n";
-    }
-    fans.close();
 
+    // === ANUNCIOS ===
+    if (abrir(dir + "/anuncios.txt", f)) {
+        for (int i = 0; i < anuncios.getCantidad(); ++i) {
+            Publicidad* p = anuncios.obtener(i);
+            f << p->getPeso() << "|" << p->getMensaje() << "\n";
+        }
+        f.close();
+    }
+
+    cout << "\n Datos guardados correctamente en '" << dir << "'.\n";
+    return true;
+}
+bool UdeATunes::cargarDatos(const std::string& dir) {
+    // Limpiar listas previas
+    usuarios.clear();
+    artistas.clear();
+    anuncios.clear();
+
+    auto abrirArchivo = [&](const std::string& path, std::ifstream& f) -> bool {
+        f.open(path);
+        if (!f.is_open()) {
+            cerr << "[ERROR] No se pudo abrir: " << path << endl;
+            return false;
+        }
+        return true;
+    };
+
+    std::string line, token;
+
+    // === USUARIOS ===
+    {
+        std::ifstream f;
+        if (abrirArchivo(dir + "/usuarios.txt", f)) {
+            while (std::getline(f, line)) {
+                if (line.empty()) continue;
+                std::stringstream ss(line);
+                std::string nickname, ciudad, pais, fecha;
+                int vipFlag;
+                std::getline(ss, nickname, '|');
+                std::getline(ss, token, '|'); vipFlag = stoi(token);
+                std::getline(ss, ciudad, '|');
+                std::getline(ss, pais, '|');
+                std::getline(ss, fecha, '|');
+                Usuario* u = new Usuario(vipFlag == 1, nickname, ciudad, pais, fecha);
+                usuarios.agregar(u);
+            }
+            f.close();
+            cout << "[OK] Usuarios cargados: " << usuarios.getCantidad() << endl;
+        }
+    }
+
+    // === ARTISTAS ===
+    {
+        std::ifstream f;
+        if (abrirArchivo(dir + "/artistas.txt", f)) {
+            while (std::getline(f, line)) {
+                if (line.empty()) continue;
+                std::stringstream ss(line);
+                int id, edad, seguidores, tendencia;
+                std::string nombre, pais;
+                std::getline(ss, token, '|'); id = stoi(token);
+                std::getline(ss, token, '|'); edad = stoi(token);
+                std::getline(ss, nombre, '|');
+                std::getline(ss, pais, '|');
+                std::getline(ss, token, '|'); seguidores = stoi(token);
+                std::getline(ss, token, '|'); tendencia = stoi(token);
+                Artista* a = new Artista(id, edad, nombre, pais);
+                for (int i = 0; i < seguidores; i++) a->agregarSeguidor();
+                artistas.agregar(a);
+            }
+            f.close();
+            cout << "[OK] Artistas cargados: " << artistas.getCantidad() << endl;
+        }
+    }
+
+    // === ÁLBUMES ===
+    {
+        std::ifstream f;
+        if (abrirArchivo(dir + "/albumes.txt", f)) {
+            while (std::getline(f, line)) {
+                if (line.empty()) continue;
+                std::stringstream ss(line);
+                int id, artId;
+                std::string nombre, fecha, sello, portada;
+                std::getline(ss, token, '|'); id = stoi(token);
+                std::getline(ss, nombre, '|');
+                std::getline(ss, fecha, '|');
+                std::getline(ss, sello, '|');
+                std::getline(ss, portada, '|');
+                std::getline(ss, token, '|'); artId = stoi(token);
+                Artista* a = buscarArtistaPorId(artId);
+                if (a) {
+                    Album* alb = new Album(id, nombre, fecha, sello, portada);
+                    a->agregarAlbum(alb);
+                }
+            }
+            f.close();
+            cout << "[OK] Álbumes cargados correctamente.\n";
+        }
+    }
+
+    // === CANCIONES ===
+    {
+        std::ifstream f;
+        if (abrirArchivo(dir + "/canciones.txt", f)) {
+            while (std::getline(f, line)) {
+                if (line.empty()) continue;
+                std::stringstream ss(line);
+                int id, albumId;
+                float duracion;
+                std::string nombre, ruta128, ruta320;
+                std::getline(ss, token, '|'); id = stoi(token);
+                std::getline(ss, token, '|'); duracion = stof(token);
+                std::getline(ss, nombre, '|');
+                std::getline(ss, ruta128, '|');
+                std::getline(ss, ruta320, '|');
+                std::getline(ss, token, '|'); albumId = stoi(token);
+                Album* alb = buscarAlbumPorId(albumId);
+                if (alb) alb->agregarCancion(new Cancion(id, duracion, nombre, ruta128, ruta320));
+            }
+            f.close();
+            cout << "[OK] Canciones cargadas.\n";
+        }
+    }
+
+    // === CRÉDITOS ===
+    {
+        std::ifstream f;
+        if (abrirArchivo(dir + "/creditos.txt", f)) {
+            while (std::getline(f, line)) {
+                if (line.empty()) continue;
+                std::stringstream ss(line);
+                int songId;
+                std::string nombre, apellido, tipo, codigo;
+                std::getline(ss, token, '|'); songId = stoi(token);
+                std::getline(ss, nombre, '|');
+                std::getline(ss, apellido, '|');
+                std::getline(ss, tipo, '|');
+                std::getline(ss, codigo, '|');
+                Cancion* c = buscarCancionPorId(songId);
+                if (c) c->agregarCreditos(new Creditos(nombre, apellido, tipo, codigo));
+            }
+            f.close();
+            cout << "[OK] Créditos cargados.\n";
+        }
+    }
+
+    // === ANUNCIOS ===
+    {
+        std::ifstream f;
+        if (abrirArchivo(dir + "/anuncios.txt", f)) {
+            while (std::getline(f, line)) {
+                if (line.empty()) continue;
+                size_t pos = line.find('|');
+                int cat = stoi(line.substr(0, pos));
+                std::string msg = line.substr(pos + 1);
+                Publicidad::Categoria catEnum = Publicidad::C;
+                if (cat == 2) catEnum = Publicidad::B;
+                else if (cat == 3) catEnum = Publicidad::A;
+                anuncios.agregar(new Publicidad(msg, catEnum));
+            }
+            f.close();
+            cout << "[OK] Anuncios cargados.\n";
+        }
+    }
+
+    cout << "\n Carga de datos finalizada correctamente.\n";
     return true;
 }
 
-bool UdeATunes::cargarDatos(const std::string& dir) {
-    // ---- artistas ----
-    std::ifstream fart(dir + "/artistas.txt");
-    if (fart.is_open()) {
-        std::string line;
-        while (std::getline(fart, line)) {
-            if (line.empty()) continue;
-            std::stringstream ss(line);
-            std::string token;
-            std::getline(ss, token, '|'); int id = std::stoi(token);
-            std::getline(ss, token, '|'); int edad = std::stoi(token);
-            std::string nombre, pais;
-            std::getline(ss, nombre, '|');
-            std::getline(ss, pais, '|');
-            std::getline(ss, token, '|'); int seguidores = std::stoi(token);
-            Artista* a = new Artista(id, edad, nombre, pais);
-            for (int i = 0; i < seguidores; ++i) a->agregarSeguidor();
-            artistas.agregar(a);
-        }
-        fart.close();
-    }
+void UdeATunes::iniciarKron(const std::string& rutaDatos, int segundos) {
+    if (kronActivo) return; // ya está activo
 
-    // ---- álbumes ----
-    std::ifstream falb(dir + "/albumes.txt");
-    if (falb.is_open()) {
-        std::string line;
-        while (std::getline(falb, line)) {
-            if (line.empty()) continue;
-            std::stringstream ss(line);
-            std::string token;
-            std::getline(ss, token, '|'); int albumId = std::stoi(token);
-            std::string nombre, fecha, sello, portada;
-            std::getline(ss, nombre, '|');
-            std::getline(ss, fecha, '|');
-            std::getline(ss, sello, '|');
-            std::getline(ss, portada, '|');
-            std::getline(ss, token, '|'); int artId = std::stoi(token);
-            Album* alb = new Album(albumId, nombre, fecha, sello, portada);
-            Artista* a = buscarArtistaPorId(artId);
-            if (a) a->agregarAlbum(alb);
-        }
-        falb.close();
-    }
-
-    // ---- canciones ----
-    std::ifstream fcanc(dir + "/canciones.txt");
-    if (fcanc.is_open()) {
-        std::string line;
-        while (std::getline(fcanc, line)) {
-            if (line.empty()) continue;
-            std::stringstream ss(line);
-            std::string token;
-            std::getline(ss, token, '|'); int id = std::stoi(token);
-            std::getline(ss, token, '|'); float dur = std::stof(token);
-            std::string nombre, ruta128, ruta320;
-            std::getline(ss, nombre, '|');
-            std::getline(ss, ruta128, '|');
-            std::getline(ss, ruta320, '|');
-            std::getline(ss, token, '|'); int albumId = std::stoi(token);
-            Cancion* c = new Cancion(id, dur, nombre, ruta128, ruta320);
-            Album* alb = buscarAlbumPorId(albumId);
-            if (alb) alb->agregarCancion(c);
-        }
-        fcanc.close();
-    }
-
-    // ---- créditos ----
-    std::ifstream fcred(dir + "/creditos.txt");
-    if (fcred.is_open()) {
-        std::string line;
-        while (std::getline(fcred, line)) {
-            if (line.empty()) continue;
-            std::stringstream ss(line);
-            std::string token;
-            std::getline(ss, token, '|'); int cid = std::stoi(token);
-            std::string nom, ape, tipo, cod;
-            std::getline(ss, nom, '|');
-            std::getline(ss, ape, '|');
-            std::getline(ss, tipo, '|');
-            std::getline(ss, cod, '|');
-            Cancion* c = buscarCancionPorId(cid);
-            if (c) {
-                Creditos* cr = new Creditos(nom, ape, tipo, cod);
-                c->agregarCreditos(cr);
+    kronActivo = true;
+    hiloKron = std::thread([this, rutaDatos, segundos]() {
+        while (kronActivo) {
+            std::this_thread::sleep_for(std::chrono::seconds(segundos));
+            if (kronActivo) {
+                cout << "\n [Kron] Guardando datos automáticos...\n";
+                guardarDatos(rutaDatos);
             }
         }
-        fcred.close();
-    }
+    });
+    hiloKron.detach(); // lo dejamos correr en segundo plano
+    cout << "[OK] Sistema Kron iniciado. Guardado automático cada " << segundos << " segundos.\n";
+}
 
-    // ---- anuncios ----
-    std::ifstream fans(dir + "/anuncios.txt");
-    if (fans.is_open()) {
-        std::string line;
-        while (std::getline(fans, line)) {
-            if (line.empty()) continue;
-            size_t pos = line.find('|');
-            int cat = std::stoi(line.substr(0, pos));
-            std::string msg = line.substr(pos + 1);
-            Publicidad::Categoria pc = Publicidad::C;
-            if (cat == 2) pc = Publicidad::B;
-            else if (cat == 3) pc = Publicidad::A;
-            Publicidad* p = new Publicidad(msg, pc);
-            anuncios.agregar(p);
-        }
-        fans.close();
-    }
-
-    return true;
+void UdeATunes::detenerKron() {
+    kronActivo = false;
+    cout << "[Kron] Detenido correctamente.\n";
 }
